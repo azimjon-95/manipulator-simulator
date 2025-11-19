@@ -1,22 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import {
+    Snackbar,
+    Alert,
+    CircularProgress,
+} from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { actions } from "../store/store";
 import { RootState, AppDispatch } from "../store/store";
 import { FormData } from "../types";
+import store from "../store/store";
 
 const LoginCard = () => {
-    const { register, handleSubmit } = useForm<FormData>();
+    const { register, handleSubmit, reset } = useForm<FormData>();
     const dispatch = useDispatch<AppDispatch>();
     const auth = useSelector((state: RootState) => state.app.authenticated);
     const [focusedInput, setFocusedInput] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [snackOpen, setSnackOpen] = useState<boolean>(false);
+    const [snackMessage, setSnackMessage] = useState<string>("");
+    const [snackSeverity, setSnackSeverity] = useState<'success' | 'error'>('success');
 
-    const onSubmit = (data: FormData) => {
+    const onSubmit = async (data: FormData) => {
+        setLoading(true);
+
+        await new Promise(resolve => setTimeout(resolve, 1500));
         dispatch(actions.login(data));
+        const updatedAuth = store.getState().app.authenticated;
+        setLoading(false);
+        reset();
+        if (updatedAuth) {
+            setSnackMessage("Вход выполнен успешно!");
+            setSnackSeverity('success');
+        } else {
+            setSnackMessage("Неверное имя пользователя или пароль!");
+            setSnackSeverity('error');
+        }
+        setSnackOpen(true);
     };
 
     const handleLogout = () => {
         dispatch(actions.logout());
+    };
+
+    const handleSnackClose = () => {
+        setSnackOpen(false);
     };
 
     return (
@@ -38,7 +66,6 @@ const LoginCard = () => {
                 animation: "slideIn 0.4s ease-out"
             }}>
 
-
                 <div style={{ textAlign: "center", marginBottom: "36px" }}>
                     <h1 style={{
                         color: "#1a1a1a",
@@ -59,93 +86,113 @@ const LoginCard = () => {
                     </p>
                 </div>
 
-                <div style={{ marginBottom: "24px" }}>
-                    <label style={{
-                        display: "block",
-                        color: "#374151",
-                        fontSize: "14px",
-                        fontWeight: "600",
-                        marginBottom: "8px"
-                    }}>
-                        Имя пользователя
-                    </label>
-                    <input
-                        {...register("username")}
-                        type="text"
-                        onFocus={() => setFocusedInput('username')}
-                        onBlur={() => setFocusedInput(null)}
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <div style={{ marginBottom: "24px" }}>
+                        <label style={{
+                            display: "block",
+                            color: "#374151",
+                            fontSize: "14px",
+                            fontWeight: "600",
+                            marginBottom: "8px"
+                        }}>
+                            Имя пользователя
+                        </label>
+                        <input
+                            {...register("username")}
+                            type="text"
+                            onFocus={() => setFocusedInput('username')}
+                            onBlur={() => setFocusedInput(null)}
+                            disabled={loading}
+                            style={{
+                                width: "100%",
+                                padding: "14px 16px",
+                                fontSize: "15px",
+                                border: `2px solid ${focusedInput === 'username' ? '#667eea' : '#e5e7eb'}`,
+                                borderRadius: "12px",
+                                backgroundColor: focusedInput === 'username' ? '#ffffff' : '#f9fafb',
+                                outline: "none",
+                                transition: "all 0.2s ease",
+                                boxSizing: "border-box",
+                                fontFamily: "inherit"
+                            }}
+                        />
+                    </div>
+
+                    <div style={{ marginBottom: "32px" }}>
+                        <label style={{
+                            display: "block",
+                            color: "#374151",
+                            fontSize: "14px",
+                            fontWeight: "600",
+                            marginBottom: "8px"
+                        }}>
+                            Пароль
+                        </label>
+                        <input
+                            {...register("password")}
+                            type="password"
+                            onFocus={() => setFocusedInput('password')}
+                            onBlur={() => setFocusedInput(null)}
+                            disabled={loading}
+                            style={{
+                                width: "100%",
+                                padding: "14px 16px",
+                                fontSize: "15px",
+                                border: `2px solid ${focusedInput === 'password' ? '#667eea' : '#e5e7eb'}`,
+                                borderRadius: "12px",
+                                backgroundColor: focusedInput === 'password' ? '#ffffff' : '#f9fafb',
+                                outline: "none",
+                                transition: "all 0.2s ease",
+                                boxSizing: "border-box",
+                                fontFamily: "inherit"
+                            }}
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={loading || auth}
                         style={{
                             width: "100%",
-                            padding: "14px 16px",
-                            fontSize: "15px",
-                            border: `2px solid ${focusedInput === 'username' ? '#667eea' : '#e5e7eb'}`,
+                            padding: "16px",
+                            fontSize: "16px",
+                            fontWeight: "600",
+                            color: "#ffffff",
+                            background: loading ? "#9ca3af" : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                            border: "none",
                             borderRadius: "12px",
-                            backgroundColor: focusedInput === 'username' ? '#ffffff' : '#f9fafb',
-                            outline: "none",
+                            cursor: loading ? "not-allowed" : "pointer",
                             transition: "all 0.2s ease",
-                            boxSizing: "border-box",
-                            fontFamily: "inherit"
+                            boxShadow: loading ? "none" : "0 4px 14px rgba(102, 126, 234, 0.4)",
+                            fontFamily: "inherit",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "8px"
                         }}
-                    />
-                </div>
-
-                <div style={{ marginBottom: "32px" }}>
-                    <label style={{
-                        display: "block",
-                        color: "#374151",
-                        fontSize: "14px",
-                        fontWeight: "600",
-                        marginBottom: "8px"
-                    }}>
-                        Пароль
-                    </label>
-                    <input
-                        {...register("password")}
-                        type="password"
-                        onFocus={() => setFocusedInput('password')}
-                        onBlur={() => setFocusedInput(null)}
-                        style={{
-                            width: "100%",
-                            padding: "14px 16px",
-                            fontSize: "15px",
-                            border: `2px solid ${focusedInput === 'password' ? '#667eea' : '#e5e7eb'}`,
-                            borderRadius: "12px",
-                            backgroundColor: focusedInput === 'password' ? '#ffffff' : '#f9fafb',
-                            outline: "none",
-                            transition: "all 0.2s ease",
-                            boxSizing: "border-box",
-                            fontFamily: "inherit"
+                        onMouseEnter={(e) => {
+                            if (!loading && !auth) {
+                                e.currentTarget.style.transform = "translateY(-2px)";
+                                e.currentTarget.style.boxShadow = "0 6px 20px rgba(102, 126, 234, 0.5)";
+                            }
                         }}
-                    />
-                </div>
-
-                <button
-                    onClick={handleSubmit(onSubmit)}
-                    style={{
-                        width: "100%",
-                        padding: "16px",
-                        fontSize: "16px",
-                        fontWeight: "600",
-                        color: "#ffffff",
-                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                        border: "none",
-                        borderRadius: "12px",
-                        cursor: "pointer",
-                        transition: "all 0.2s ease",
-                        boxShadow: "0 4px 14px rgba(102, 126, 234, 0.4)",
-                        fontFamily: "inherit"
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = "translateY(-2px)";
-                        e.currentTarget.style.boxShadow = "0 6px 20px rgba(102, 126, 234, 0.5)";
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = "translateY(0)";
-                        e.currentTarget.style.boxShadow = "0 4px 14px rgba(102, 126, 234, 0.4)";
-                    }}
-                >
-                    Войти в систему
-                </button>
+                        onMouseLeave={(e) => {
+                            if (!loading && !auth) {
+                                e.currentTarget.style.transform = "translateY(0)";
+                                e.currentTarget.style.boxShadow = "0 4px 14px rgba(102, 126, 234, 0.4)";
+                            }
+                        }}
+                    >
+                        {loading ? (
+                            <>
+                                <CircularProgress size={20} color="inherit" />
+                                Вход...
+                            </>
+                        ) : (
+                            "Войти в систему"
+                        )}
+                    </button>
+                </form>
 
                 {auth && (
                     <button
@@ -186,6 +233,17 @@ const LoginCard = () => {
                         © 2025 Манипулятор. Все права защищены.
                     </p>
                 </div>
+
+                <Snackbar
+                    open={snackOpen}
+                    autoHideDuration={4000}
+                    onClose={handleSnackClose}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                >
+                    <Alert onClose={handleSnackClose} severity={snackSeverity} sx={{ width: '100%' }}>
+                        {snackMessage}
+                    </Alert>
+                </Snackbar>
 
                 <style>{`
                     @keyframes slideIn {
