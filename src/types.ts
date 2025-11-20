@@ -14,8 +14,8 @@ export interface CommandHistoryItem {
     id: string;
     original: string;
     optimized: string;
-    date: string; // ISO string
-    beforeSnapshot: string; // serialized JSON
+    date: string;
+    beforeSnapshot: string;
     afterSnapshot: string;
 }
 

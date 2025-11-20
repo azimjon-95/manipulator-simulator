@@ -23,6 +23,7 @@ A interactive web app for simulating manipulations on a grid of samples using Cy
 - React + TypeScript
 - Redux Toolkit
 - Material-UI
+- React-hook-form
 - Utilities for command parsing and serialization
 
 ## License

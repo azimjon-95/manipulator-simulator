@@ -8,8 +8,13 @@ const appSlice = createSlice({
     reducers: {
         login(state: AppState, action: PayloadAction<LoginPayload>) {
             const { username, password } = action.payload;
+
             state.authenticated = username === "admin" && password === "admin";
+
             if (state.authenticated) {
+                // LocalStorage ga saqlash
+                localStorage.setItem("auth", "true");
+
                 state.manipulator = { x: 0, y: 0, holding: false };
                 state.samples = generateRandomSamples(state.gridSize);
                 state.history = state.history.slice(0, 50);
@@ -17,6 +22,9 @@ const appSlice = createSlice({
         },
         logout(state: AppState) {
             state.authenticated = false;
+
+            // LocalStorage dan o‘chirish
+            localStorage.removeItem("auth");
         },
         setGridSize(state: AppState, action: PayloadAction<number>) {
             state.gridSize = action.payload;

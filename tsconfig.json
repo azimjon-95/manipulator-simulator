@@ -7,7 +7,7 @@
             "es6"
         ],
         "allowJs": true,
-        "skipLibCheck": true, // Added: Fixes MUI/third-party type overload errors
+        "skipLibCheck": true,
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "strict": true,
@@ -18,7 +18,7 @@
         "resolveJsonModule": true,
         "isolatedModules": true,
         "noEmit": true,
-        "jsx": "react-jsx" // Ensures React 17+ JSX transform
+        "jsx": "react-jsx"
     },
     "include": [
         "src"
